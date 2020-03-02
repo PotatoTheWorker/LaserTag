@@ -1,3 +1,37 @@
+local bool = nil
+local name = nil
+local ply = LocalPlayer()
+
+local btable = {}
+
+btable[1] = {
+    value = ply:GetNWBool("noobieequipped")
+}
+
+local ntable = {}
+
+ntable[1] = {
+    name = "[Newbie] "
+}
+
+function getBool()
+    for k, v in pairs(btable) do
+        bool = v.value
+    end
+
+    return bool
+end
+
+function getName()
+    for k, v in pairs(ntable) do
+        if (getBool()) then
+            name = v.name
+        end
+    end
+
+    return name
+end
+
 function GM:OnPlayerChat(ply, strText, bTeamOnly, bPlayerIsDead)
     local tagtab = {}
 
@@ -6,28 +40,26 @@ function GM:OnPlayerChat(ply, strText, bTeamOnly, bPlayerIsDead)
         table.insert(tagtab, "*DEAD* ")
     end
 
-    if (bPlayerIsDead) and (ply:GetNWBool("noobieequipped") == true) then
-        table.insert(tagtab, Color(255, 30, 40))
-        table.insert(tagtab, "*DEAD* ")
+    if (getBool()) then
         table.insert(tagtab, Color(102, 255, 0))
-        table.insert(tagtab, "[NEWBIE] ")
+        table.insert(tagtab, getName())
     end
 
     if (bTeamOnly) then
-        table.insert(tab, Color(30, 160, 40))
-        table.insert(tab, "(TEAM) ")
+        table.insert(tagtab, Color(30, 160, 40))
+        table.insert(tagtab, "(TEAM) ")
     end
 
-    if (IsValid(player)) then
-        table.insert(tab, ply)
+    if (IsValid(ply)) then
+        table.insert(tagtab, ply)
     else
-        table.insert(tab, "Console")
+        table.insert(tagtab, "Console")
     end
 
-    table.insert(tab, Color(255, 255, 255))
-    table.insert(tab, ": " .. strText)
+    table.insert(tagtab, Color(255, 255, 255))
+    table.insert(tagtab, ": " .. strText)
 
-    chat.AddText(unpack(tab))
+    chat.AddText(unpack(tagtab))
 
     return true
 end
