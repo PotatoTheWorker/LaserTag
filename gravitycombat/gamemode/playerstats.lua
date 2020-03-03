@@ -80,6 +80,12 @@ cbzstats[13] = {
     iname = "playtime"
 }
 
+cbzstats[14] = {
+    name = "SScrap",
+    fallback = 0,
+    iname = "scrap"
+    }
+
 regstats = {}
 
 regstats[1] = {
