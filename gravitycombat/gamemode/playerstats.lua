@@ -84,7 +84,7 @@ cbzstats[14] = {
     name = "SScrap",
     fallback = 0,
     iname = "scrap"
-    }
+}
 
 regstats = {}
 
