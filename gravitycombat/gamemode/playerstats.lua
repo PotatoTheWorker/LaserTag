@@ -154,14 +154,6 @@ regstats[11] = {
     iname = "pointsmultiprice"
 }
 
-tagbools = {}
-
-tagbools[1] = {
-    name = "SNoobieUnlocked",
-    fallback = true,
-    iname = "noobieunlocked"
-}
-
 function ply:StatsSetup(key, val)
     key = string.format("%s[%s]", self:SteamID(), key)
 
@@ -177,14 +169,12 @@ end
 function ply:StatsSave(key, val)
     for k, v in pairs(cbzstats) do
         self:StatsSetup(v.name, self:GetNWInt(v.iname))
+        print(self:StatsSetupRetrival(v.name))
     end
 
     for k, v in pairs(regstats) do
         self:StatsSetup(v.name, self:GetNWInt(v.iname))
-    end
-
-    for k, v in pairs(tagbools) do
-        self:StatsSetup(v.name, self:GetNWBool(v.iname))
+        print(self:StatsSetupRetrival(v.name))
     end
 end
 
@@ -196,6 +186,7 @@ function ply:StatsLoad()
         else
             self:SetNWInt(v.iname, self:StatsSetupRetrival(v.name))
         end
+        print(self:StatsSetupRetrival(v.name))
     end
 
     for k, v in pairs(regstats) do
@@ -204,15 +195,6 @@ function ply:StatsLoad()
             self:SetNWInt(v.iname, self:StatsSetupRetrival(v.name) + v.fallback)
         else
             self:SetNWInt(v.iname, self:StatsSetupRetrival(v.name))
-        end
-    end
-
-    for k, v in pairs(tagbools) do
-        if (self:StatsSetupRetrival(v.name) == nil) then
-            self:StatsSetup(v.name, v.fallback)
-            self:SetNWBool(v.iname, self:StatsSetupRetrival(v.name))
-        else
-            self:SetNWBool(v.iname, self:StatsSetupRetrival(v.name))
         end
         print(self:StatsSetupRetrival(v.name))
     end

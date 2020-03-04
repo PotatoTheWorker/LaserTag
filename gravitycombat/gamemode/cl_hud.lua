@@ -289,7 +289,7 @@ function scoreboard:show()
 
     local ypos = background:GetTall() * .04
     local scroll = vgui.Create("DScrollPanel", background)
-    scroll:SetPos(0, background:GetTall() * 0.03)
+    scroll:SetPos(0, background:GetTall() * .03)
     scroll:SetSize(background:GetWide(), background:GetTall() * .97)
 
     for k, v in pairs(player.GetAll()) do
