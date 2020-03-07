@@ -1,4 +1,15 @@
-local hide = {
+local black = Color(0, 0, 0, 255)
+local white = Color(255, 255, 255, 255)
+local blacktransparent = Color(20, 20, 20, 195)
+local darkwhite = Color(0, 0, 0, 125)
+local playerteamcolor
+local ply = LocalPlayer()
+local scrw = ScrW()
+local scrh = ScrH()
+local playerteam = ""
+local pteam = ""
+
+local hidebasehud = {
     ["CHudHealth"] = true,
     ["CHudBattery"] = true,
     ["CHudSecondaryAmmo"] = true,
@@ -6,172 +17,45 @@ local hide = {
     ["CHudDeathNotice"] = true,
 }
 
-hook.Add("HUDShouldDraw", "HideHUD", function(name)
-    if (hide[name]) then return false end
+hook.Add("HUDShouldDraw", "HideBaseHud", function(name)
+    if (hidebasehud[name]) then return false end
 end)
 
-function LargerTextScale()
+function largerTextScale()
     return ScrH() / 30
 end
 
-function SmallerTextScale()
+function smallerTextScale()
     return ScrH() / 35
 end
 
-function SmallestTextScale()
+function smallestTextScale()
     return ScrH() / 50
 end
 
-local player_amount = 0
+function shortenNumbers(number)
+    local steps = {{1, ""}, {1e3, "k"}, {1e6, "m"}, {1e9, "b"}, {1e12, "t"}}
 
-for k, v in pairs(player.GetAll()) do
-    player_amount = player_amount + 1
+    for _, b in ipairs(steps) do
+        if b[1] <= number + 1 then
+            steps.use = _
+        end
+    end
+
+    local result = string.format("%.1f", number / steps[steps.use][1])
+
+    if tonumber(result) >= 1e3 and steps.use < #steps then
+        steps.use = steps.use + 1
+        result = string.format("%.1f", tonumber(result) / 1e3)
+    end
+
+    result = string.sub(result, 0, string.sub(result, - 1) == "0" and -3 or -1)
+
+    return result .. steps[steps.use][2]
 end
 
-surface.CreateFont("BasicHudFont", {
-    font = "Arial",
-    extended = false,
-    size = SmallerTextScale(),
-    weight = 750,
-    blursize = 0,
-    scanlines = 0,
-    antialias = true,
-    underline = false,
-    italic = false,
-    strikeout = false,
-    symbol = false,
-    rotary = false,
-    shadow = false,
-    additive = false,
-    outline = false
-})
-
-surface.CreateFont("TestFont", {
-    font = "Arial",
-    extended = false,
-    size = LargerTextScale(),
-    weight = 750,
-    blursize = 0,
-    scanlines = 0,
-    antialias = true,
-    underline = false,
-    italic = false,
-    strikeout = false,
-    symbol = false,
-    rotary = false,
-    shadow = false,
-    additive = false,
-    outline = false
-})
-
-surface.CreateFont("WeaponFont", {
-    font = "Arial",
-    extended = false,
-    size = LargerTextScale(),
-    weight = 750,
-    blursize = 0,
-    scanlines = 0,
-    antialias = true,
-    underline = false,
-    italic = false,
-    strikeout = false,
-    symbol = false,
-    rotary = false,
-    shadow = false,
-    additive = false,
-    outline = false
-})
-
-local black = Color(0, 0, 0, 255)
-local white = Color(255, 255, 255, 255)
-local blackt = Color(20, 20, 20, 195)
-local darkw = Color(0, 0, 0, 125)
-local playerteamcolor
-
-hook.Add("HUDPaint", "testtext", function()
+function playerTeamColor()
     local ply = LocalPlayer()
-    local wep = ply:GetActiveWeapon()
-
-    function shortnumberstring(number)
-        local steps = {{1, ""}, {1e3, "k"}, {1e6, "m"}, {1e9, "b"}, {1e12, "t"}}
-
-        for _, b in ipairs(steps) do
-            if b[1] <= number + 1 then
-                steps.use = _
-            end
-        end
-
-        local result = string.format("%.1f", number / steps[steps.use][1])
-
-        if tonumber(result) >= 1e3 and steps.use < #steps then
-            steps.use = steps.use + 1
-            result = string.format("%.1f", tonumber(result) / 1e3)
-        end
-
-        result = string.sub(result, 0, string.sub(result, -1) == "0" and -3 or -1) -- Remove .0 (just if it is zero!)
-
-        return result .. steps[steps.use][2]
-    end
-
-    time = 60
-    surface.SetDrawColor(white)
-    surface.DrawRect(ScrW() / 2.002, ScrH() / 2.006, ScrW() / 768, ScrH() / 144)
-    surface.DrawRect(ScrW() / 2.002, ScrH() / 2.026, ScrW() / 768, ScrH() / 144)
-    surface.DrawRect(ScrW() / 2.012, ScrH() / 2.006, ScrH() / 144, ScrW() / 768)
-    surface.DrawRect(ScrW() / 2.002, ScrH() / 2.006, ScrH() / 144, ScrW() / 768)
-    surface.SetDrawColor(blackt)
-    surface.DrawRect(ScrW() / 50, ScrH() / 1.15, ScrW() / 19.15, ScrH() / 14.25)
-    surface.DrawRect(ScrW() / 12, ScrH() / 1.15, ScrW() / 19.25, ScrH() / 14.25)
-    surface.DrawRect(ScrW() / 1.16, ScrH() / 1.15, ScrW() / 7.68, ScrH() / 14.25)
-    surface.DrawRect(ScrW() / 50, ScrH() / 1.05, ScrW() / 8.65, ScrH() / 25)
-    surface.SetDrawColor(white)
-    surface.DrawRect(ScrW() / 54, ScrH() / 1.065, ScrW() / 75, ScrH() / 300)
-    surface.DrawRect(ScrW() / 54, ScrH() / 1.088, ScrH() / 300, ScrW() / 75)
-    surface.DrawRect(ScrW() / 16.624, ScrH() / 1.153, ScrW() / 75, ScrH() / 300)
-    surface.DrawRect(ScrW() / 14, ScrH() / 1.153, ScrH() / 300, ScrW() / 75)
-    surface.DrawRect(ScrW() / 12.2, ScrH() / 1.065, ScrW() / 75, ScrH() / 300)
-    surface.DrawRect(ScrW() / 12.2, ScrH() / 1.088, ScrH() / 300, ScrW() / 75)
-    surface.DrawRect(ScrW() / 8.15, ScrH() / 1.153, ScrW() / 75, ScrH() / 300)
-    surface.DrawRect(ScrW() / 7.4, ScrH() / 1.153, ScrH() / 300, ScrW() / 75)
-    surface.DrawRect(ScrW() / 8.15, ScrH() / 1.0535, ScrW() / 75, ScrH() / 300)
-    surface.DrawRect(ScrW() / 7.4, ScrH() / 1.0535, ScrH() / 300, ScrW() / 75)
-    surface.DrawRect(ScrW() / 54, ScrH() / 1.009, ScrW() / 75, ScrH() / 300)
-    surface.DrawRect(ScrW() / 54, ScrH() / 1.0325, ScrH() / 300, ScrW() / 75)
-    surface.DrawRect(ScrW() / 1.0195, ScrH() / 1.153, ScrW() / 75, ScrH() / 300)
-    surface.DrawRect(ScrW() / 1.0075, ScrH() / 1.153, ScrH() / 300, ScrW() / 75)
-    surface.DrawRect(ScrW() / 1.162, ScrH() / 1.065, ScrW() / 75, ScrH() / 300)
-    surface.DrawRect(ScrW() / 1.162, ScrH() / 1.088, ScrH() / 300, ScrW() / 75)
-    draw.DrawText(ply:GetNWInt("lives"), "TestFont", ScrW() / 22, ScrH() / 1.12, white, TEXT_ALIGN_CENTER)
-    draw.DrawText(ply:GetNWInt("shield-lives"), "TestFont", ScrW() / 9.1, ScrH() / 1.12, white, TEXT_ALIGN_CENTER)
-    draw.DrawText("Lives", "BasicHudFont", ScrW() / 34, ScrH() / 1.15)
-    draw.DrawText("Time: " .. "Timer will output to here", "BasicHudFont", ScrW() / 2.2, ScrH() / 150)
-    draw.DrawText("Shield", "BasicHudFont", ScrW() / 11, ScrH() / 1.15)
-    draw.DrawText("Points: " .. shortnumberstring(ply:GetNWInt("points")), "BasicHudFont", ScrW() / 40, ScrH() / 1.0455, white, TEXT_ALIGN_LEFT)
-    surface.DrawRect(ScrW() / 1.16, ScrH() / 1.106, ScrW() / 7.7, ScrH() / 300)
-
-    if (ply:GetActiveWeapon():IsValid()) then
-        if (ply:GetActiveWeapon():GetPrintName() ~= nil) then
-            draw.DrawText(ply:GetActiveWeapon():GetPrintName(), "WeaponFont", ScrW() / 1.0095, ScrH() / 1.15, white, TEXT_ALIGN_RIGHT)
-        end
-
-        if (ply:GetActiveWeapon():Clip1() ~= -1) then
-            local secammo = ply:GetAmmoCount(wep:GetPrimaryAmmoType())
-
-            if secammo > 1500 then
-                secammo = "INF"
-            end
-
-            draw.DrawText(ply:GetActiveWeapon():Clip1() .. " / " .. secammo, "WeaponFont", ScrW() / 1.0095, ScrH() / 1.105, white, TEXT_ALIGN_RIGHT)
-        else
-            return
-        end
-    end
-end)
-
-function entityTeamColor()
-    local playerteam = ""
-    local ply = LocalPlayer()
-
     if (ply:GetEyeTrace().Entity:IsPlayer()) then
         playerteam = ply:GetEyeTrace().Entity:Team()
     end
@@ -183,42 +67,134 @@ function entityTeamColor()
     end
 end
 
-function getTeamName()
-    local ply = LocalPlayer()
-    team = ply:Team()
+function playerTeamName()
+    pteam = ply:Team()
     teamname = {"Waiting", "Red", "Green", "Blue", "Yellow", "Juggernaut", "Unknown", "FFA"}
 
-    if (teamname[team] == nil) then
-        team = "Spectator"
+    if (teamname[pteam] == nil) then
+        pteam = "Spectator"
 
-        return team
+        return pteam
     else
-        return teamname[team]
+        return teamname[pteam]
     end
 end
+
+surface.CreateFont("SmallerHudFont", {
+    font = "Arial",
+    extended = false,
+    size = smallerTextScale(),
+    weight = 750,
+    antialias = true,
+})
+
+surface.CreateFont("LargerHudFont", {
+    font = "Arial",
+    extended = false,
+    size = largerTextScale(),
+    weight = 750,
+    antialias = true,
+})
+
+surface.CreateFont("WeaponFont", {
+    font = "Arial",
+    extended = false,
+    size = largerTextScale(),
+    weight = 750,
+    antialias = true,
+})
+
+hook.Add("HUDPaint", "GeneralHUD", function()
+    local ply = LocalPlayer()
+    local wep = ply:GetActiveWeapon()
+
+    surface.SetDrawColor(white)
+    surface.DrawRect(scrw / 2, scrh / 2, scrw / 750, scrh / 140)
+    surface.DrawRect(scrw / 2, scrh / 2.017, scrw / 750, scrh / 140)
+    surface.DrawRect(scrw / 2, scrh / 2, scrh / 140, scrw / 750)
+    surface.DrawRect(scrw / 2.01, scrh / 2, scrh / 140, scrw / 750)
+
+    surface.SetDrawColor(blacktransparent)
+    surface.DrawRect(scrw / 50, scrh / 1.15, scrw / 19.15, scrh / 14.25)
+    surface.DrawRect(scrw / 12, scrh / 1.15, scrw / 19.25, scrh / 14.25)
+    surface.DrawRect(scrw / 1.16, scrh / 1.15, scrw / 7.68, scrh / 14.25)
+    surface.DrawRect(scrw / 1.16, scrh / 1.05, scrw / 7.68, scrh / 25)
+    surface.DrawRect(scrw / 50, scrh / 1.05, scrw / 8.65, scrh / 25)
+
+    surface.SetDrawColor(white)
+    surface.DrawRect(scrw / 54, scrh / 1.065, scrw / 75, scrh / 300)
+    surface.DrawRect(scrw / 54, scrh / 1.088, scrh / 300, scrw / 75)
+    surface.DrawRect(scrw / 16.6, scrh / 1.153, scrw / 75, scrh / 300)
+    surface.DrawRect(scrw / 13.9, scrh / 1.153, scrh / 300, scrw / 75)
+
+    surface.DrawRect(scrw / 12.2, scrh / 1.065, scrw / 75, scrh / 300)
+    surface.DrawRect(scrw / 12.2, scrh / 1.088, scrh / 300, scrw / 75)
+    surface.DrawRect(scrw / 8.11, scrh / 1.153, scrw / 75, scrh / 300)
+    surface.DrawRect(scrw / 7.4, scrh / 1.153, scrh / 300, scrw / 75)
+
+    surface.DrawRect(scrw / 8.11, scrh / 1.053, scrw / 75, scrh / 300)
+    surface.DrawRect(scrw / 7.4, scrh / 1.053, scrh / 300, scrw / 75)
+    surface.DrawRect(scrw / 54, scrh / 1.008, scrw / 75, scrh / 300)
+    surface.DrawRect(scrw / 54, scrh / 1.029, scrh / 300, scrw / 75)
+
+    surface.DrawRect(scrw / 1.02, scrh / 1.153, scrw / 75, scrh / 300)
+    surface.DrawRect(scrw / 1.0075, scrh / 1.153, scrh / 300, scrw / 75)
+    surface.DrawRect(scrw / 1.162, scrh / 1.065, scrw / 75, scrh / 300)
+    surface.DrawRect(scrw / 1.162, scrh / 1.088, scrh / 300, scrw / 75)
+    surface.DrawRect(scrw / 1.16, scrh / 1.106, scrw / 7.7, scrh / 300)
+
+    surface.DrawRect(scrw / 1.02, scrh / 1.053, scrw / 75, scrh / 300)
+    surface.DrawRect(scrw / 1.0075, scrh / 1.053, scrh / 300, scrw / 75)
+    surface.DrawRect(scrw / 1.162, scrh / 1.0088, scrw / 75, scrh / 300)
+    surface.DrawRect(scrw / 1.162, scrh / 1.032, scrh / 300, scrw / 75)
+
+    draw.DrawText("Lives", "SmallerHudFont", scrw / 21.5, scrh / 1.155, white, TEXT_ALIGN_CENTER)
+    draw.DrawText("Shield", "SmallerHudFont", scrw / 9.1, scrh / 1.155, white, TEXT_ALIGN_CENTER)
+    draw.DrawText(ply:GetNWInt("lives"), "LargerHudFont", scrw / 22.05, scrh / 1.12, white, TEXT_ALIGN_CENTER)
+    draw.DrawText(ply:GetNWInt("shield-lives"), "LargerHudFont", scrw / 9.2, scrh / 1.12, white, TEXT_ALIGN_CENTER)
+    draw.DrawText("Points: "..shortenNumbers(ply:GetNWInt("points")), "SmallerHudFont", scrw / 40, scrh / 1.045, white, TEXT_ALIGN_LEFT)
+
+    if (ply:GetActiveWeapon():IsValid()) then
+        if (ply:GetActiveWeapon():GetPrintName() ~= nil) then
+            draw.DrawText(ply:GetActiveWeapon():GetPrintName(), "WeaponFont", scrw / 1.0095, scrh / 1.15, white, TEXT_ALIGN_RIGHT)
+        end
+
+        if (ply:GetActiveWeapon():Clip1() ~= -1) then
+            local secammo = ply:GetAmmoCount(wep:GetPrimaryAmmoType())
+
+            if secammo > 1500 then
+                secammo = "INF"
+            end
+
+            draw.DrawText(ply:GetActiveWeapon():Clip1() .. " / " .. secammo, "WeaponFont", scrw / 1.0095, scrh / 1.105, white, TEXT_ALIGN_RIGHT)
+        else
+            return
+        end
+    end
+end)
 
 function GM:HUDDrawTargetID()
     local ply = LocalPlayer()
     local plyentity = ply:GetEyeTrace()
 
     if ply:GetEyeTrace().Entity:IsPlayer() then
-        surface.SetDrawColor(blackt)
-        surface.DrawRect(ScrW() / 2.13, ScrH() / 1.95, ScrW() / 16.4, ScrH() / 18)
+        surface.SetDrawColor(blacktransparent)
+        surface.DrawRect(scrw / 2.13, scrh / 1.95, scrw / 16.4, scrh / 18)
         surface.SetDrawColor(white)
-        surface.DrawRect(ScrW() / 1.927, ScrH() / 1.962, ScrW() / 75, ScrH() / 300)
-        surface.DrawRect(ScrW() / 1.885, ScrH() / 1.962, ScrH() / 300, ScrW() / 75)
-        surface.DrawRect(ScrW() / 2.138, ScrH() / 1.76, ScrW() / 75, ScrH() / 300)
-        surface.DrawRect(ScrW() / 2.138, ScrH() / 1.825, ScrH() / 300, ScrW() / 75)
+        surface.DrawRect(scrw / 1.927, scrh / 1.962, scrw / 75, scrh / 300)
+        surface.DrawRect(scrw / 1.885, scrh / 1.962, scrh / 300, scrw / 75)
+        surface.DrawRect(scrw / 2.138, scrh / 1.76, scrw / 75, scrh / 300)
+        surface.DrawRect(scrw / 2.138, scrh / 1.825, scrh / 300, scrw / 75)
 
         if (ply:Team() and plyentity.Entity:Team() == 8) then
-            draw.DrawText("Enemy", "BasicHudFont", ScrW() / 2.002, ScrH() / 1.95, entityTeamColor(), TEXT_ALIGN_CENTER)
-            draw.DrawText(ply:GetEyeTrace().Entity:Name(), "BasicHudFont", ScrW() / 2.002, ScrH() / 1.87, entityTeamColor(), TEXT_ALIGN_CENTER)
+            draw.DrawText("Enemy", "SmallerHudFont", scrw / 2.002, scrh / 1.905, playerTeamColor(), TEXT_ALIGN_CENTER)
+            --draw.DrawText(ply:GetEyeTrace().Entity:Name(), "SmallerHudFont", ScrW() / 2.002, ScrH() / 1.87, playerTeamColor(), TEXT_ALIGN_CENTER)
         elseif (ply:Team() == plyentity.Entity:Team()) then
-            draw.DrawText("Friendly", "BasicHudFont", ScrW() / 2.002, ScrH() / 1.95, entityTeamColor(), TEXT_ALIGN_CENTER)
-            draw.DrawText(ply:GetEyeTrace().Entity:Name(), "BasicHudFont", ScrW() / 2.002, ScrH() / 1.87, entityTeamColor(), TEXT_ALIGN_CENTER)
+            draw.DrawText("Friendly", "SmallerHudFont", scrw / 2.002, scrh / 1.905, playerTeamColor(), TEXT_ALIGN_CENTER)
+            --draw.DrawText(ply:GetEyeTrace().Entity:Name(), "SmallerHudFont", ScrW() / 2.002, ScrH() / 1.87, playerTeamColor(), TEXT_ALIGN_CENTER)
         elseif (ply:Team() ~= plyentity.Entity:Team()) then
-            draw.DrawText("Enemy", "BasicHudFont", ScrW() / 2.002, ScrH() / 1.95, entityTeamColor(), TEXT_ALIGN_CENTER)
-            draw.DrawText(ply:GetEyeTrace().Entity:Name(), "BasicHudFont", ScrW() / 2.002, ScrH() / 1.87, entityTeamColor(), TEXT_ALIGN_CENTER)
+            draw.DrawText("Enemy", "SmallerHudFont", scrw / 2.002, scrh / 1.905, playerTeamColor(), TEXT_ALIGN_CENTER)
+            --draw.DrawText(ply:GetEyeTrace().Entity:Name(), "SmallerHudFont", ScrW() / 2.002, ScrH() / 1.87, playerTeamColor(), TEXT_ALIGN_CENTER)
         end
     end
 end
@@ -227,8 +203,8 @@ scoreboard = scoreboard or {}
 
 function scoreboard:show()
     local blur = vgui.Create("DFrame")
-    blur:SetPos(ScrW() / 5.95, ScrH() / 10)
-    blur:SetSize(ScrW() / 1.5, ScrH() / 1.3)
+    blur:SetPos(scrw / 5.95, scrh / 10)
+    blur:SetSize(scrw / 1.5, scrh / 1.3)
     blur:SetTitle("")
     blur:ShowCloseButton(false)
     blur:SetScreenLock(true)
@@ -243,8 +219,8 @@ function scoreboard:show()
     end
 
     local bars = vgui.Create("DFrame")
-    bars:SetPos(ScrW() / 5.95, ScrH() / 10)
-    bars:SetSize(ScrW() / 1.45, ScrH() / 1.25)
+    bars:SetPos(scrw / 5.95, scrh / 10)
+    bars:SetSize(scrw / 1.45, scrh / 1.25)
     bars:SetTitle("")
     bars:ShowCloseButton(false)
     bars:SetScreenLock(true)
@@ -252,24 +228,24 @@ function scoreboard:show()
 
     bars.Paint = function()
         surface.SetDrawColor(white)
-        surface.DrawRect(1298, 43, 3.6, 25.6)
-        surface.DrawRect(1276.99, 43, 25.6, 3.6)
-        surface.DrawRect(14, 838, 25.6, 3.6)
-        surface.DrawRect(14, 816.99, 3.6, 25.6)
+        surface.DrawRect(scrw / 1.506, scrh / 25, scrw / 75, scrh / 300)
+        surface.DrawRect(scrw / 1.48, scrh / 25, scrh / 300, scrw / 75)
+        surface.DrawRect(scrw / 150, scrh / 1.326, scrh / 300, scrw / 75)
+        surface.DrawRect(scrw / 150, scrh / 1.292, scrw / 75, scrh / 300)
     end
 
     local header = vgui.Create("DLabel")
-    header:SetFont("BasicHudFont")
+    header:SetFont("SmallerHudFont")
     header:SetText("Savior Servers Laser Tag")
     header:SetTextColor(white)
     header:Dock(TOP)
     header:SetHeight(50)
     header:SetContentAlignment(5)
     header:SetExpensiveShadow(3, black)
-    header:DockMargin(0, 110, 0, 0)
+    header:DockMargin(0, scrh / 12, 0, 0)
     local background = vgui.Create("DFrame")
-    background:SetPos(ScrW() / 5.65, ScrH() / 7)
-    background:SetSize(ScrW() / 1.5, ScrH() / 1.365)
+    background:SetPos(scrw / 5.65, scrh / 7)
+    background:SetSize(scrw / 1.5, scrh / 1.365)
     background:SetTitle("")
     background:ShowCloseButton(false)
     background:SetScreenLock(true)
@@ -277,14 +253,14 @@ function scoreboard:show()
     background:MakePopup()
 
     background.Paint = function(s, w, h)
-        surface.SetDrawColor(blackt)
+        surface.SetDrawColor(blacktransparent)
         surface.DrawRect(0, 0, w, h)
-        draw.SimpleText("Name", "BasicHudFont", 100, 15, white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-        draw.SimpleText("Points", "BasicHudFont", 285, 15, white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-        draw.SimpleText("Kills", "BasicHudFont", 395, 15, white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-        draw.SimpleText("Deaths", "BasicHudFont", 514, 15, white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-        draw.SimpleText("Team", "BasicHudFont", 673, 15, white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-        draw.SimpleText("Ping", "BasicHudFont", 1165, 15, white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+        draw.SimpleText("Name", "SmallerHudFont", w / 12, 15, white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+        draw.SimpleText("Points", "SmallerHudFont", w / 3.25, 15, white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+        draw.SimpleText("Kills", "SmallerHudFont", w / 2.3, 15, white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+        draw.SimpleText("Deaths", "SmallerHudFont", w / 1.8, 15, white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+        draw.SimpleText("Team", "SmallerHudFont", w / 1.4, 15, white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+        draw.SimpleText("Ping", "SmallerHudFont", w / 1.1, 15, white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
     end
 
     local ypos = background:GetTall() * .04
@@ -302,14 +278,14 @@ function scoreboard:show()
             if IsValid(v) then
                 surface.SetDrawColor(color)
                 surface.DrawRect(0, 0, w, h)
-                surface.SetDrawColor(darkw)
+                surface.SetDrawColor(darkwhite)
                 surface.DrawRect(0, 0, w, h)
-                draw.SimpleText(v:Name(), "BasicHudFont", w / 12, h / 2.2, white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-                draw.SimpleText(shortnumberstring(v:GetNWInt("points")), "BasicHudFont", w / 4.5, h / 2.1, white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-                draw.SimpleText(v:Frags(), "BasicHudFont", w / 3.25, h / 2.2, white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-                draw.SimpleText(v:Deaths(), "BasicHudFont", w / 2.5, h / 2.2, white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-                draw.SimpleText(team.GetName(v:Team()), "BasicHudFont", w / 1.9, h / 2.2, white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
-                draw.SimpleText(v:Ping(), "BasicHudFont", w / 1.1, h / 2.2, white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+                draw.SimpleText(v:Name(), "SmallerHudFont", w / 50, h / 7, white, TEXT_ALIGN_LEFT, TEXT_ALIGN_LEFT)
+                draw.SimpleText(shortenNumbers(v:GetNWInt("points")), "SmallerHudFont", w / 3.25, h / 2.1, white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+                draw.SimpleText(v:Frags(), "SmallerHudFont", w / 2.3, h / 2.2, white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+                draw.SimpleText(v:Deaths(), "SmallerHudFont", w / 1.8, h / 2.2, white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+                draw.SimpleText(team.GetName(v:Team()), "SmallerHudFont", w / 1.4, h / 2.2, white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
+                draw.SimpleText(v:Ping(), "SmallerHudFont", w / 1.1, h / 2.2, white, TEXT_ALIGN_CENTER, TEXT_ALIGN_CENTER)
             end
         end
 
